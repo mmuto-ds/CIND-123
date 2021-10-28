@@ -1,0 +1,185 @@
+---
+title: 'CIND 123 - Data Analytics: Basic Methods'
+author: Marco Muto
+output:
+  html_document: default
+  pdf_document: default
+  word_document: default
+---
+<center> <h1> Assignment 1 (10%) </h1> </center>
+<center>  <h3> [Insert your full name] </h2> </center>
+<center> <h3> [Insert course section & student number] </h2> </center>
+---
+## Instructions 
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. Review this website for more details on using R Markdown <http://rmarkdown.rstudio.com>.
+
+Use RStudio for this assignment. Complete the assignment by inserting your R code wherever you see the string "#INSERT YOUR ANSWER HERE".
+
+When you click the **Knit** button, a document (PDF, Word, or HTML format) will be generated that includes both the assignment content as well as the output of any embedded R code chunks.
+
+Submit **both**  the rmd and generated output files. Failing to submit both files will be subject to mark deduction.
+
+## Sample Question and Solution
+
+Use `seq()` to create the vector $(1,2,3,\ldots,10)$.
+
+```{r}
+seq(1,10)
+```
+
+## Question 1
+
+a) Use the `seq()` function to create the vector $(1, 7, 13, \ldots, 61)$. Note that each term in this sequence is of the form 
+$1 + 6n$ where $n = 0, \ldots, 10$.
+
+```{r}
+seq(from=1, to=61, by=6)
+```
+
+b) Use `rep()` to create the vector $(2,3,4,\dots,2,3,4, \dots,2,3,4)$ in which the sequence $(2,3,4)$ is repeated 5 times.
+
+```{r}
+rep(2:4,times=5)
+```
+
+c) To convert factor to number, would it be correct to use the following commands? Explain your answer.
+
+`factorVar <- factor(c(1, 6, 5.4, 3.2));as.numeric(factorVar)`
+
+```{r}
+#as.numeric(factorVar)
+##as.numeric R defaults to treating the levels as if they were equidistant in the modelling code by generating polynomial contrasts. It will
+##order them according from largest to smallest hence the 1,4,3,2.
+```
+
+d) A comma-separated values file `dataset.csv` consists of missing values represented by question marks (`?`) and exclamation mark (`!`). How can you read this type of files in R?
+
+```{r}
+#df <- read.csv(file = "dataset.csv", stringsAsFactors = F, sep = ",", na.strings = c("?","!"))
+```
+
+\newpage
+## Question 2
+
+a) Compute: $$\sum_{n=10}^{100} n^3$$
+
+```{r}
+sum(seq(10:100)^3)
+```
+
+b) Compute: $$\sum_{n=1}^{10}\left(\frac{2^{n}}{n^2} + \frac{n^{4}}{4^{n}}\right)$$
+
+```{r}
+n <- 1:10
+sum(((2^n)/(n^2))+((n^4)/(4^n)))
+```
+
+c) Compute: $$\sum_{n=0}^{10} \frac{1}{(n+1)!}$$ 
+
+```{r}
+sum(1/factorial(1+(seq(10,0))))
+```
+
+d) Compute: $$\prod_{n=3}^{33} \left(3n + \frac{3}{\sqrt[3]{n}}\right)$$
+
+```{r}
+n <- 3:33
+prod((3*n)+(3/(n^1/3)))
+```
+
+e) Explain the output of this R-command:
+`c(0:5)[NA]`
+
+```{r}
+c(0:5)[NA]
+##the output is a vector that repeats NA 6 times the vecor's index starts at 0 and continues to 5.  
+```
+
+f) What is the difference between is.vector() and is.numeric() functions?
+
+```{r}
+#both functions are primitive and are used to check the data type when called. they will return true if a variable 
+#contains numeric vector. They may differ if a vector contains character data then it will return dalse if called via is.numeric(), And it will return true if called by is.vector. 
+```
+
+g) List at least three advantages and three disadvantages of using `RShiny` package?
+```{r}
+#Three advantages include R shiny being good for non programmers to make visualizations, great for making high quality apps quickly especially if the user already knows R, the created apps are also readily avaialble and shareble #Three disadvantages are R shiny being limited in making complicated apps. Capturing user input and feedback may be difficult. Lastly R shiny may have long load times for loading apps   
+```
+
+\newpage
+## Question 3
+`iris` dataset gives the measurements in centimeters of the variables sepal length, sepal width, petal length and petal width, respectively, for 50 flowers from each of 3 species of iris. The species are Iris setosa, versicolor, and virginica.
+
+Install the `iris` dataset on your computer using the command `install.packages("datasets")`. Then, load the `datasets` package into your session using the following command.
+```{r}
+library(datasets)
+```
+
+a) Display the first six rows of the `iris` data set.
+
+```{r}
+head(iris)
+```
+
+b) Compute the average of the first four variables (Sepal.Length, Sepal.Width, Petal.Length and Petal.Width) using `sapply()` function.
+
+Hint: You might need to consider removing the `NA` values, otherwise the average will not be computed.
+
+```{r}
+
+sapply(iris[1:4],mean, rm=NA)
+
+```
+
+c) Show how to use R to replace the missing values in this dataset with plausible ones.
+
+```{r}
+library(imputeTS)
+na_mean(iris)
+```
+
+d) Compute the standard deviation for only the first and the third variables (Sepal.Length and Petal.Length)
+
+```{r}
+sd(iris[,1])
+
+sd(iris[,3])
+```
+
+e) Construct a boxplot for `Sepal.Width` variable, then display the values of all the outliers. Explain how these outliers have been calculated.
+
+```{r}
+require(ggplot2)
+ggplot(iris,aes(x="", y=Sepal.Width))+
+  geom_boxplot(outlier.color = "blue")+
+  stat_summary(aes(label = round(stat(y), 1)),
+               geom = "text", 
+               fun = function(y) { o <- boxplot.stats(y)$out; if(length(o) == 0) NA else o },
+               hjust = -1
+  )
+
+## the calculation is done by multiplying 1.5 by the IQR. If the point is larger than Q3 and less than Q1 after the calculation it is considered an outlier.
+```
+
+f) Compute the upper quartile of the `Sepal.Width` variable with two different methods.
+
+```{r}
+quantile(iris$Sepal.Width, 0.75)
+
+fivenum(iris$Sepal.Width)
+#the fourth value contains the upper quartile
+```
+
+g) Construct a pie chart to describe the species with 'Sepal.Length' less than 7 centimeters.
+```{r}
+
+sepalLength2 <- subset(iris, iris$Sepal.Length < 7)
+mytable <- table(sepalLength2$Species)
+lbls <- paste(names(mytable), "  \t", mytable, sep="")
+pie(mytable, labels = lbls,col=c("yellow","white","red"),
+   main="Pie Chart of Species\n for Sepal length < 7 cm")
+```
+
+END of Assignment #1.

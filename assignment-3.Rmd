@@ -1,0 +1,171 @@
+---
+title: 'CIND 123 - Data Analytics: Basic Methods'
+author: Marco Muto
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+<center> <h1> Assignment 3 (10%) </h1> </center>
+<center>  <h3> [Marco Muto] </h2> </center>
+<center> <h3> [CIND 123 DHA DHD] </h2> </center>
+---
+## Instructions 
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. Review this website for more details on using R Markdown <http://rmarkdown.rstudio.com>.
+
+Use RStudio for this assignment. Complete the assignment by inserting your R code wherever you see the string "#INSERT YOUR ANSWER HERE".
+
+When you click the **Knit** button, a document (PDF, Word, or HTML format) will be generated that includes both the assignment content as well as the output of any embedded R code chunks.
+
+Submit **both**  the rmd and generated output files. Failing to submit both files will be subject to mark deduction.
+
+## Sample Question and Solution
+
+Use `seq()` to create the vector $(2,4,6,\ldots,20)$.
+
+```{r}
+#Insert your code here.
+seq(2,20,by = 2)
+```
+
+
+## Question 1
+
+Use the following commands to install the `airquality` dataset and load the `datasets` package into your session.
+```{r}
+#install.packages("datasets")
+library(datasets) 
+data(airquality)
+str(airquality)
+```
+
+
+a) Use a histogram to assess the normality of the `Ozone` variable, then explain why it does not appear normally distributed.
+```{r}
+hist(airquality$Ozone)
+
+#it may be skewed left due to the mean being greater then the median 
+summary(airquality$Ozone)
+```
+
+b) Create a set of boxplots that shows the distribution of `Ozone` in each month. 
+Use different colors for each month.
+```{r}
+library(ggplot2)
+airquality$Month<-factor(airquality$Month)
+sbs.bp<<-ggplot(data = airquality,aes(y=Ozone,x=Month,Fill=Month))
+sbs.bp<-sbs.bp+geom_boxplot()
+sbs.bp<-sbs.bp+ggtitle("distribution of ozone per month")
+sbs.bp<-sbs.bp+ylab("ozone")+xlab("month")
+sbs.bp<-sbs.bp+scale_fill_brewer(palette="BuPu")
+sbs.bp
+```
+
+
+
+##Question 2
+
+Use the following commands to install the `marketing` dataset and load the `datarium` package into your session.
+```{r}
+
+library(datarium)
+data("marketing", package = "datarium")
+str(marketing)
+```
+
+a)  Find the covariance between the `Sales` and the advertising budget of `newspaper`. Comment on the output, in terms of the strength and direction of the relationship.
+```{r}
+
+cov(marketing$sales,marketing$newspaper)
+```
+
+b) Plot the `Sales` as a function of the `Youtube` variable using a scatterplot, then graph the least-square line on the same plot. 
+Hint: You may use the `ggplot()` function from `ggplot2` package. 
+
+```{r}
+library(ggplot2)
+ggplot(data=marketing,aes(x=youtube,y=sales))+
+  geom_point(color="black")+
+  geom_smooth(method="lm",se=F)
+```
+
+c) Use the regression line to predict the `Sales` amount when `newspaper` budget is `$136.80K`. Comment on the difference between the output and the expected value. 
+```{r}
+news.fit<-(lm(sales~newspaper,data = marketing))
+predict(news.fit,data.frame(newspaper=136.80))
+news.fit
+```
+
+d) Use `newspaper` and `facebook` variables to build a linear regression model to predict `sales`. Display a summary of your model indicating Residuals, Coefficients, ..., etc. What conclusion can you draw from this summary?
+```{r}
+fit4<-lm(sales~newspaper+facebook,data = marketing)
+summary(fit4)
+fit4
+```
+
+e) Use the regression line to predict the `Sales` amount when `newspaper` budget is `$136.80K` and `facebook` is `$43.92K`.
+```{r}
+predict(fit4,data.frame(newspaper=136.80,facebook = 43.92))
+```
+
+f) What is the difference between the output in (e) and the output in (c)
+```{r}
+14.82169+(0.05469*136.80)
+
+11.026705+(0.006644*136.80)+(0.199045*43.92) 
+#the difference between the two equations is that the result and e is using two independant variables in the equation while the result in c is using only one. The differenct in the predicted sales is 1.62562
+(14.82169+(0.05469*136.80))-(11.026705+(0.006644*136.80)+(0.199045*43.92))
+```
+
+g) Display the correlation matrix of the variables: `youtube`, `facebook`, `newspaper` and `sales`. What conclusion can you draw?
+```{r}
+cc<-cor(marketing,use="complete.obs")
+cc
+#from out matrix we can compare variables with one another and see if they have a strong positive linear relationship or not
+```
+
+h) In your opinion, which statistical test should be used to discuss the relationship between `youtube` and `sales`?
+Hint:  Review the differnce between Pearson and Spearman tests.
+```{r}
+#if we look back at 2b we would notice that the data is continuous and not ordinal. Also the data seems to be spread out and not as obviously linear. Due to the two correlation with both methods are very similar. I would chose pearson since the correlation seems more realistic due to the scatter plot not appearing as linear. 
+cor(marketing$sales,marketing$youtube,method=c("spearman"))
+
+cor(marketing$sales,marketing$youtube)
+```
+
+
+##Question 3
+
+Install the `carData` dataset on your computer using the command `install.packages("carData")`. Then load the `CanPop: Canadian Population Data` into your session using the following command.  The CanPop` has 16 rows and 2 columns and represent the decennial time-series of Canadian population between 1851 and 2001.
+```{r}
+
+library("carData")
+data("CanPop", package = "carData")
+str(CanPop)
+```
+
+a) Which of the two variables is the independent variable and which is the dependent variable? Explain your choice.
+```{r}
+#year is the independant variable due to it not being affected by the population attribute. If we assign year as the slope and population as the y variable in the equation y=mx+b. Everytime we change x then the y variable y is dependant on the year we select  
+```
+
+b) Assuming that year and population are linearly related, give the equation and the graph of the least-squares regression line.
+Hint: use lm() function.
+```{r}
+fit3<-lm(population~year,data = CanPop)
+fit3
+plot(CanPop$year,CanPop$population, main = c("Population by year"))
+abline(fit3)
+```
+
+c) Explain the meaning of the slope and y-intercept for the least-squares regression line in (b).
+```{r}
+#the equation plugged into y=mx+b is y= -337.0986 + 0.1813x. The slope is m=0.1813 and if we let y=0 then we will get a value of -337.0986 for the intercept. 
+```
+
+d) In year 2020, what would you predict the population's size to be.  Does the value of the predicted size matches your expectations? Explain.
+```{r}
+predict(fit3,data.frame(year=2020))
+#it does not really match my expectiations since theoretically I would have thought it would have been higher but given the linear model's equation it matches the result  
+```
